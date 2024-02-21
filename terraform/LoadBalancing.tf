@@ -64,9 +64,22 @@ resource "aws_lb_target_group_attachment" "client_attachment" {
   target_id        = aws_instance.clients[count.index].id
 }
 
-# Listener rule for the ALB
-resource "aws_lb_listener_rule" "client_listener_rule" {
-  listener_arn = aws_lb.alb.arn # Replace aws_lb.alb.arn with the correct ARN of your ALB listener
+
+# Create an HTTP listener for port 80
+resource "aws_lb_listener" "http_listener" {
+  load_balancer_arn = aws_lb.alb.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.client_target_group.arn
+  }
+}
+
+# Define a listener rule for the HTTP listener
+resource "aws_lb_listener_rule" "http_listener_rule" {
+  listener_arn = aws_lb_listener.http_listener.arn
   priority     = 100
 
   action {
