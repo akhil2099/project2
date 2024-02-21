@@ -1,0 +1,30 @@
+---
+- name: Installing Apache and setting different content for index.html
+  hosts: client
+  tasks:
+    - name: apache2 install
+      apt:
+        name: apache2
+        state: latest
+      become: yes
+
+    - name: Set index.html content for client1
+      become: yes
+      copy:
+        content: "hello 1\n"
+        dest: /var/www/html/index.html
+      when: inventory_hostname == "ip-172-31-38-131"
+
+    - name: Set index.html content for client2
+      become: yes
+      copy:
+        content: "hello 2\n"
+        dest: /var/www/html/index.html
+      when: inventory_hostname == "ip-172-31-42-208"
+
+    - name: apache2 restart
+      service:
+        name: apache2
+        state: restarted
+      become: yes
+
